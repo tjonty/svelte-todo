@@ -1,1 +1,32 @@
 @import 'tailwindcss';
+
+html,
+body {
+    @apply bg-[#FEFCF3]
+}
+
+p {
+    @apply m-1 p-1 md:m-3 md:p-3
+}
+
+/* Button */
+
+.btn-switch-1 {
+    @apply w-1/4 rounded-md border-2 border-gray-700 bg-[#F5EFFF] p-2 hover:border-[#FEFCF3] hover:bg-[#FBF5DD]
+}
+
+.btn-switch-2 {
+    @apply ease-in m-0 w-1/3 rounded-md border-2 hover:border-black hover:bg-[#FBFFE4] px-3 py-1.5 text-black transition duration-300 bg-[#FBF5DD] border-[#FEFCF3]
+}
+
+.btn-add {
+    @apply ease-in m-0 w-1/3 rounded-md border-2 border-black bg-[#E8F9FF] px-3 py-1.5 text-black transition duration-300 hover:bg-[#3F72AF] hover:text-white hover:border-white
+}
+
+.category-title {
+    @apply p-2 md:p-4 rounded-2xl
+}
+
+.input {
+    @apply ease-in rounded-md border border-gray-300 bg-[#F5F5F5] px-3 py-2 text-sm text-slate-700 shadow-sm transition duration-300 placeholder:text-gray-600 hover:border-blue-300 focus:border-blue-500 focus:shadow focus:outline-none
+}
