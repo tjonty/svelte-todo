@@ -30,9 +30,9 @@
 	// function to fetch user's todo lists
 	async function loadDocs() {
 		if ($currentUser?.uid) {
-			const tofoRef = doc(db, 'todos', $currentUser.uid);
+			const todoRef = doc(db, 'todos', $currentUser.uid);
 
-			const docs = await getDoc(tofoRef);
+			const docs = await getDoc(todoRef);
 
 			if (!docs.exists()) {
 				userCategory = [];
@@ -59,14 +59,14 @@
 	async function addTodo() {
 		if ($currentUser?.uid && category && taskId) {
 			try {
-				const tofoRef = doc(db, 'todos', $currentUser.uid);
+				const todoRef = doc(db, 'todos', $currentUser.uid);
 				const taskData = {
 					task: taskName,
 					status: false,
 					createdAt: Date.now()
 				};
 
-				const docSnap = await getDoc(tofoRef);
+				const docSnap = await getDoc(todoRef);
 
 				if (docSnap.exists()) {
 					// Get existing tasks
@@ -82,7 +82,7 @@
 
 				// Update document (creates if doesn't exist)
 				await setDoc(
-					tofoRef,
+					todoRef,
 					{
 						tasks: {
 							[`${category}`]: {
@@ -115,11 +115,11 @@
 	async function handleStatusChange(taskId: number, category: string) {
 		if ($currentUser?.uid && category && taskId) {
 			try {
-				const tofoRef = doc(db, 'todos', $currentUser.uid);
+				const todoRef = doc(db, 'todos', $currentUser.uid);
 
 				const statusPath = `tasks.${category}.${taskId}.status`;
 
-				const docSnap = await getDoc(tofoRef);
+				const docSnap = await getDoc(todoRef);
 
 				if (!docSnap.exists()) {
 					console.warn('Todo document does not exist for user:', $currentUser.uid);
@@ -133,7 +133,7 @@
 					console.warn('Task not found at path: ', statusPath);
 				}
 
-				await updateDoc(tofoRef, {
+				await updateDoc(todoRef, {
 					[statusPath]: !currentStatus,
 					'metadata.lastUpdated': serverTimestamp()
 				});
