@@ -16,6 +16,9 @@ jobs:
           node-version: '18'
       - name: Debug Environment Variables
         run: echo "API_KEY=$VITE_FIREBASE_API_KEY" && echo "APP_ID=$VITE_FIREBASE_APP_ID"
+        run: |
+          echo "PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}"
+          echo "MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}"
       - run: npm ci && npm run build
         env:
             VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
