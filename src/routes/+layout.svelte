@@ -9,7 +9,7 @@
 </script>
 
 <nav
-	class="flex w-full flex-col items-center justify-evenly border-b-2 border-amber-700 p-4 text-center md:flex-row"
+	class="flex w-full flex-row items-center justify-evenly border-b-2 border-amber-700 p-4 text-center"
 >
 	<a class="btn-switch-1" href="/todo">Todo</a>
 	<a href="/" class="btn-switch-1">

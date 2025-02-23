@@ -5,13 +5,22 @@
 	import { db } from '$lib/firebase';
 	import { currentUser } from '$lib/stores';
 	import type { Todo } from '$lib/types';
-	import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
+	import {
+		doc,
+		getDoc,
+		increment,
+		serverTimestamp,
+		setDoc,
+		updateDoc,
+		writeBatch
+	} from 'firebase/firestore';
 
 	let category: string = $state('');
-	let taskId: number = $state(1);
+	let taskId: number = $state(Date.now());
 	let taskName: string = $state('');
 	let sortedCategories: string[] = $state([]);
 	let usersToDo: any = $state({});
+	let userCategory: any = $state([]);
 
 	// fetch the data of a user from db when page load
 	$effect(() => {
@@ -27,25 +36,26 @@
 	// function to fetch user's todo lists
 	async function loadDocs() {
 		if ($currentUser?.uid) {
-			const userRef = doc(db, 'todos', $currentUser.uid);
+			const tofoRef = doc(db, 'todos', $currentUser.uid);
 
-			const docs = await getDoc(userRef);
+			const docs = await getDoc(tofoRef);
+
+			if (!docs.exists()) {
+				userCategory = [];
+				usersToDo = {};
+				return;
+			}
+
+			const data = docs.data();
+
+			usersToDo = data?.tasks || {};
+			userCategory = data?.category || [];
+
 			const exists = docs.exists();
 
 			if (!exists) {
 				throw new Error('Data does not exists!');
 			}
-
-			const data = docs.data();
-
-			sortedCategories = Object.keys(data).sort();
-
-			const ordered = sortedCategories.reduce((obj: any, key) => {
-				obj[key] = data[key];
-				return obj;
-			}, {});
-
-			usersToDo = ordered;
 		} else {
 			console.error('No user is logged in.');
 		}
@@ -55,59 +65,85 @@
 	async function addTodo() {
 		if ($currentUser?.uid && category && taskId) {
 			try {
-				const userRef = doc(db, 'todos', $currentUser.uid);
-
-				const record: Todo = {
-					[`${category}.${taskId}`]: {
-						task: taskName,
-						status: false
-					}
+				const tofoRef = doc(db, 'todos', $currentUser.uid);
+				const taskData = {
+					task: taskName,
+					status: false,
+					createdAt: Date.now()
 				};
 
-				if (usersToDo == null) {
-					// for new entry
-					const batch = writeBatch(db);
-					batch.set(userRef, record);
+				const docSnap = await getDoc(tofoRef);
 
-					await batch.commit();
-				} else {
-					// for existing entries
-					await updateDoc(userRef, record);
+				if (docSnap.exists()) {
+					// Get existing tasks
+					const existingTasks = docSnap.data().tasks?.[category] || {};
+
+					// Check if task already exists
+					const taskExists = Object.values(existingTasks).some(
+						(task: any) => task.task === taskName
+					);
+
+					if (taskExists) return;
 				}
-				taskId++;
-				loadDocs(); // to reload user's todo list
+
+				// Update document (creates if doesn't exist)
+				await setDoc(
+					tofoRef,
+					{
+						tasks: {
+							[`${category}`]: {
+								[`${taskId}`]: taskData
+							}
+						},
+						'metadata.taskCount': increment(1)
+					},
+					{ merge: true }
+				);
+
+				taskId = Date.now();
+				await loadDocs(); // to reload user's todo list
 			} catch (err: any) {
 				throw new Error('Unable to add record to db: ', err.stack);
 			}
 		} else {
-			console.error('No user is logged in.');
+			console.error('Missing required fields: user ID, category or taskID');
 		}
 	}
 
 	// function to change status of a task
-	async function handleStatusChange(taskId: string, category: string) {
+	async function handleStatusChange(taskId: number, category: string) {
 		if ($currentUser?.uid && category && taskId) {
 			try {
-				const userRef = doc(db, 'todos', $currentUser.uid);
+				const tofoRef = doc(db, 'todos', $currentUser.uid);
 
-				const docSnap = await getDoc(userRef);
+				const statusPath = `tasks.${category}.${taskId}.status`;
 
-				if (docSnap.exists()) {
-					const data = docSnap.data();
+				const docSnap = await getDoc(tofoRef);
 
-					const currentStatus = data[category]?.[taskId]?.status;
-
-					const record = {
-						[`${category}.${taskId}.status`]: !currentStatus
-					};
-
-					await updateDoc(userRef, record);
+				if (!docSnap.exists()) {
+					console.warn('Todo document does not exist for user:', $currentUser.uid);
+					return;
 				}
+
+				const data = docSnap.data();
+				const currentStatus = data?.tasks?.[category]?.[taskId]?.status;
+
+				if (typeof currentStatus !== 'boolean') {
+					console.warn('Task not found at path: ', statusPath);
+				}
+
+				await updateDoc(tofoRef, {
+					[statusPath]: !currentStatus,
+					'metadata.lastUpdated': serverTimestamp()
+				});
+
+				await loadDocs(); // to reload user's todo list
 			} catch (err: any) {
 				throw new Error('Unable to update record in db: ', err.stack);
 			}
+		} else {
+			console.error('Missing required fields: user ID, category or taskID');
 		}
-		loadDocs(); // to reload user's todo list
 	}
 </script>
 
@@ -115,25 +151,46 @@
 	<AuthCheck>
 		<p class="text-2xl">ONE STEP AT A TIME</p>
 
-		<InputTask bind:sortedCategories {addTodo} bind:category bind:taskName />
+		<InputTask
+			{loadDocs}
+			bind:sortedCategories
+			{userCategory}
+			{addTodo}
+			bind:category
+			bind:taskName
+		/>
 
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-			{#each Object.entries(usersToDo) as [key, category]}
-				<div
-					class="group rounded-3xl bg-[#D6E6F2] p-4 transition duration-300 ease-in hover:bg-[#769FCD]"
-				>
+			{#if Object.entries(usersToDo).length > 0}
+				{#each Object.entries(usersToDo) as [key, category]}
 					<div
-						class="category-title w-full bg-[#769FCD] transition duration-300 ease-out group-hover:bg-[#D6E6F2]"
+						class="group rounded-3xl bg-[#D6E6F2] p-4 transition duration-300 ease-in hover:bg-[#769FCD]"
 					>
-						{key}
+						<div
+							class="category-title w-full bg-[#769FCD] transition duration-300 ease-out group-hover:bg-[#D6E6F2]"
+						>
+							{key}
+						</div>
+						{#if category && Object.entries(category).length > 0}
+							{#each Object.entries(category).sort(([_, a], [__, b]) => Number(a.status) - Number(b.status)) as [id, value]}
+								<TaskItems {id} {key} {value} {handleStatusChange} />
+							{/each}
+						{/if}
 					</div>
-					{#if category && Object.entries(category).length > 0}
-						{#each Object.entries(category).sort(([_, a], [__, b]) => Number(a.status) - Number(b.status)) as [id, value]}
-							<TaskItems {id} {key} {value} {handleStatusChange} />
-						{/each}
-					{/if}
-				</div>
-			{/each}
+				{/each}
+			{:else if userCategory.length > 0}
+				{#each userCategory as category}
+					<div
+						class="group rounded-3xl bg-[#D6E6F2] p-4 transition duration-300 ease-in hover:bg-[#769FCD]"
+					>
+						<div
+							class="category-title w-full bg-[#769FCD] transition duration-300 ease-out group-hover:bg-[#D6E6F2]"
+						>
+							{category}
+						</div>
+					</div>
+				{/each}
+			{/if}
 		</div>
 	</AuthCheck>
 </div>

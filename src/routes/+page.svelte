@@ -9,7 +9,6 @@
 		const provider = new GoogleAuthProvider();
 		const user = await signInWithPopup(auth, provider);
 		console.log(user);
-		redirect(302, '/todo');
 	}
 </script>
 
