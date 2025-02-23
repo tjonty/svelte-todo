@@ -4,22 +4,22 @@ https://svelte-todo-12c71.web.app
 ```
 
 ## About 🧐
-While leaning about Svelte I decided to build this Todo App. Where user can securly login via google authentication and specify categories based on their requirements and add tasks to complete at a time. When user decides to come back to site they can found their tasks.
+While learning about Svelte, I decided to build this Todo App. Users can securely log in via Google authentication, create custom categories based on their needs, and add tasks to complete at their convenience. When users return to the site, they can find their tasks waiting for them.
 
-### learning 📋
-During building Svelte-Todo I get to learn about these things:
+### What I Learned 📋
+While building Svelte-Todo, I gained experience with the following:
 
 - How to use Svelete runes
-- How page.svelte and layout.svelte file behave and work
-- How to pass props(with runes) to child component and vice-versa
-- How Stores are created and used in other places
-- Basic routing
+- How `+page.svelte` and `+layout.svelte` files behave and work
+- How to pass props(with runes) to child component and vice versa
+- How Stores are created and used across app
+- Basic routing in Svelte
 - Firebase Authentication
 - Deploy and Hosting with Firebase
-- Integrate Google Analytics
+- Integrating Google Analytics
 
-### Limitation and Future scope ⏳
-Soul purpose of this web-app is to playaround with Svelte along with Firebase to handle data, and deployment. 
-Modern Todo Apps have far more features available than this one and due to time limitations and purpose of building, I implemented only 1-2 features. 
+### Limitation and Future Scope ⏳
+The sole purpose of this web app was to experiment with Svelte for learning and Firebase for data management and deployment. Modern Todo apps offer far more features than this one, but due to time constraints and the project’s purpose, I focused on implementing just a few key features.
 
-### Checkout my other repo to know about my learnings and work... 🔨⛓⚙️
+### Check Out My Other Repos🔨⛓⚙️
+Explore my other repositories to learn more about my projects and skills!
