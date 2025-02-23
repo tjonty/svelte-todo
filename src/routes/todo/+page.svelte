@@ -2,18 +2,12 @@
 	import AuthCheck from '$lib/components/AuthCheck.svelte';
 	import TaskItems from '$lib/components/TaskItems.svelte';
 	import InputTask from '$lib/components/InputTask.svelte';
-	import { db } from '$lib/firebase';
+	import { analytics, db } from '$lib/firebase';
 	import { currentUser } from '$lib/stores';
 	import type { Todo } from '$lib/types';
-	import {
-		doc,
-		getDoc,
-		increment,
-		serverTimestamp,
-		setDoc,
-		updateDoc,
-		writeBatch
-	} from 'firebase/firestore';
+	import { doc, getDoc, increment, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+	import { onMount } from 'svelte';
+	import { logEvent } from 'firebase/analytics';
 
 	let category: string = $state('');
 	let taskId: number = $state(Date.now());
@@ -102,6 +96,13 @@
 				taskName = '';
 				taskId = Date.now();
 				await loadDocs(); // to reload user's todo list
+
+				analytics &&
+					logEvent(analytics, 'task_added', {
+						page_title: 'Todo Page',
+						page_location: window.location.href,
+						page_path: window.location.pathname
+					});
 			} catch (err: any) {
 				throw new Error('Unable to add record to db: ', err.stack);
 			}
@@ -138,6 +139,12 @@
 				});
 
 				await loadDocs(); // to reload user's todo list
+				analytics &&
+					logEvent(analytics, 'task_status_changed', {
+						page_title: 'Todo Page',
+						page_location: window.location.href,
+						page_path: window.location.pathname
+					});
 			} catch (err: any) {
 				throw new Error('Unable to update record in db: ', err.stack);
 			}
@@ -145,20 +152,22 @@
 			console.error('Missing required fields: user ID, category or taskID');
 		}
 	}
+
+	onMount(() => {
+		analytics &&
+			logEvent(analytics, 'page_view', {
+				page_title: 'Todo Page',
+				page_location: window.location.href,
+				page_path: window.location.pathname
+			});
+	});
 </script>
 
 <div>
 	<AuthCheck>
 		<p class="text-2xl">ONE STEP AT A TIME</p>
 
-		<InputTask
-			{loadDocs}
-			bind:sortedCategories
-			{userCategory}
-			{addTodo}
-			bind:category
-			bind:taskName
-		/>
+		<InputTask {loadDocs} {userCategory} {addTodo} bind:category bind:taskName />
 
 		<div class="m-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 			{#if Object.entries(usersToDo).length > 0}

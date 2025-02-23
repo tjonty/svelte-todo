@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { db } from '$lib/firebase';
+	import { analytics, db } from '$lib/firebase';
 
 	import { currentUser } from '$lib/stores';
-	import { arrayUnion, doc, getDoc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+	import { logEvent } from 'firebase/analytics';
+	import { arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
 
 	let {
-		sortedCategories = $bindable(),
 		category = $bindable(),
 		taskName = $bindable(),
 		addTodo,
@@ -39,6 +39,12 @@
 					}
 				}
 				loadDocs();
+				analytics &&
+					logEvent(analytics, 'category_added', {
+						page_title: 'Todo Page',
+						page_location: window.location.href,
+						page_path: window.location.pathname
+					});
 			} catch (err: any) {
 				throw new Error('Unable to add record to db: ', err.stack);
 			}
