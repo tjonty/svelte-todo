@@ -12,9 +12,13 @@
 	}
 </script>
 
-{#if $currentUser}
-	<p class="text-2xl">Welcome {$currentUser.displayName}</p>
-	<button on:click={() => signOut(auth)} class="btn-add !m-4">Sign out</button>
-{:else}
-	<button on:click={signInWithGoogle} class="btn-add !m-4">Sign in with Google</button>
-{/if}
+<div class="flex items-center">
+	{#if $currentUser}
+		<div>
+			<p class="text-2xl">Welcome {$currentUser.displayName}</p>
+			<button on:click={() => signOut(auth)} class="btn-add !m-4">Sign out</button>
+		</div>
+	{:else}
+		<button on:click={signInWithGoogle} class="btn-add !m-4">Sign in with Google</button>
+	{/if}
+</div>

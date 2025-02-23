@@ -99,7 +99,7 @@
 					},
 					{ merge: true }
 				);
-
+				taskName = '';
 				taskId = Date.now();
 				await loadDocs(); // to reload user's todo list
 			} catch (err: any) {
@@ -160,7 +160,7 @@
 			bind:taskName
 		/>
 
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+		<div class="m-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 			{#if Object.entries(usersToDo).length > 0}
 				{#each Object.entries(usersToDo) as [key, category]}
 					<div
