@@ -1,40 +1,25 @@
-access this project here: https://svelte-todo-12c71.web.app
-
-# sv
-
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
+# Svelte Todo 📝
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+https://svelte-todo-12c71.web.app
 ```
 
-## Developing
+## About 🧐
+While leaning about Svelte I decided to build this Todo App. Where user can securly login via google authentication and specify categories based on their requirements and add tasks to complete at a time. When user decides to come back to site they can found their tasks.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### learning 📋
+During building Svelte-Todo I get to learn about these things:
 
-```bash
-npm run dev
+- How to use Svelete runes
+- How page.svelte and layout.svelte file behave and work
+- How to pass props(with runes) to child component and vice-versa
+- How Stores are created and used in other places
+- Basic routing
+- Firebase Authentication
+- Deploy and Hosting with Firebase
+- Integrate Google Analytics
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+### Limitation and Future scope ⏳
+Soul purpose of this web-app is to playaround with Svelte along with Firebase to handle data, and deployment. 
+Modern Todo Apps have far more features available than this one and due to time limitations and purpose of building, I implemented only 1-2 features. 
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+### Checkout my other repo to know about my learnings and work... 🔨⛓⚙️
