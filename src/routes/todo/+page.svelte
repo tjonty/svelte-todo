@@ -21,10 +21,6 @@
 		loadDocs();
 	});
 
-	$effect(() => {
-		console.log('category: ', category);
-	});
-
 	$inspect(category);
 
 	// function to fetch user's todo lists
