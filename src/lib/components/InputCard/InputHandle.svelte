@@ -4,7 +4,7 @@
 	import { currentUser } from '$lib/stores';
 	import type { Category } from '$lib/types';
 	import { logEvent } from 'firebase/analytics';
-	import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+	import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 	import BtnSwitch from './BtnSwitch.svelte';
 	import CategoryInput from './CategoryInput.svelte';
 	import TaskInput from './TaskInput.svelte';
@@ -33,12 +33,16 @@
 			const docSnap = await getDoc(todoRef);
 			const currentCategories: Category = docSnap.exists() ? docSnap.data()?.category || [] : [];
 
-			if (!currentCategories.includes(newCategory)) {
-				await updateDoc(todoRef, {
-					category: arrayUnion(newCategory)
-				});
+			if (!docSnap.exists()) {
+				await setDoc(todoRef, { category: [newCategory] });
+			} else {
+				const currentCategories = docSnap.data()?.category || [];
+				if (!currentCategories.includes(newCategory)) {
+					await updateDoc(todoRef, {
+						category: arrayUnion(newCategory)
+					});
+				}
 			}
-
 			newCategory = '';
 			await loadDocs();
 
